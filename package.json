@@ -1,7 +1,7 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/jsteacat/qa-auto-engineer-javascript-project-87/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/jsteacat/qa-auto-engineer-javascript-project-87/actions)",
+  "description": "[![Actions Status](https://github.com/jsteacat/frontend-project-46/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/jsteacat/frontend-project-46/actions)",
   "main": "src/index.js",
   "scripts": {
     "test": "npx jest"

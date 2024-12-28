@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash';
+
 export default (obj1, obj2) => {
   // 1: get objects keys
   const keys1 = Object.keys(obj1);
@@ -22,7 +24,7 @@ export default (obj1, obj2) => {
         value: obj1[key],
       };
     }
-    if (obj1[key] !== obj2[key]) {
+    if (!isEqual(obj1[key], obj2[key])) {
       return {
         key,
         type: 'changed',

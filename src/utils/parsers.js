@@ -1,14 +1,20 @@
-import YAML from 'yaml';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 
-const objParsers = {
-  json: JSON.parse,
-  yml: YAML.parse,
-  yaml: YAML.parse,
-};
+const readFile = (filePath) => fs.readFileSync(filePath);
+const getFormat = (filePath) => path.extname(filePath);
 
-export default (data, format) => {
-  if (!objParsers[format]) {
-    throw new Error(`Unknown format: ${format}`);
+const parse = (filePath) => {
+  const format = getFormat(filePath);
+  const data = readFile(filePath);
+  if (format === '.json') {
+    return JSON.parse(data);
   }
-  return objParsers[format](data);
+  if (format === '.yaml' || format === '.yml') {
+    return yaml.load(data);
+  }
+  throw new Error(`Invalid format - ${format}`);
 };
+
+export default parse;

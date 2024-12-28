@@ -28,11 +28,9 @@ const stylish = (tree) => {
     const indentSize = depth * spacesCount - leftIndent;
     const blank = ' ';
     const bracketIndent = indentSize + leftIndent;
-    
     const {
       key, state, value, oldValue, newValue,
     } = node;
-    
     if (node.state !== 'nested' && node.state !== 'updated') {
       return `${blank.repeat(indentSize)}${states[state]}${key}: ${defineValue(value, depth)}`;
     }

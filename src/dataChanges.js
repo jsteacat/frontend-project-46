@@ -1,4 +1,4 @@
-import { isPlainObject, orderBy } from 'lodash';
+import { isPlainObject, orderBy, isEqual } from 'lodash';
 
 const diffTree = (obj1, obj2) => {
   const keys1 = Object.keys(obj1);
@@ -16,7 +16,7 @@ const diffTree = (obj1, obj2) => {
     if (isPlainObject(obj1[key]) && isPlainObject(obj2[key])) {
       return { key, state: 'nested', value: diffTree(obj1[key], obj2[key]) };
     }
-    if (obj1[key] !== obj2[key]) {
+    if (!isEqual(obj1[key], obj2[key])) {
       return {
         key, state: 'updated', oldValue: obj1[key], newValue: obj2[key],
       };

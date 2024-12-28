@@ -1,6 +1,6 @@
-import { isEqual } from 'lodash';
+import { isEqual, isPlainObject } from 'lodash';
 
-export default (obj1, obj2) => {
+const diff = (obj1, obj2, depth = 1) => {
   // 1: get objects keys
   const keys1 = Object.keys(obj1);
   const keys2 = Object.keys(obj2);
@@ -32,6 +32,14 @@ export default (obj1, obj2) => {
         value: obj2[key],
       };
     }
+    if (isPlainObject(obj1[key]) && isPlainObject(obj2[key])) {
+      return {
+        key,
+        type: 'nested',
+        value: diff(obj1[key], obj2[key], depth + 1),
+        depth,
+      }
+    }
     return {
       key,
       type: 'unchanged',
@@ -39,3 +47,5 @@ export default (obj1, obj2) => {
     };
   });
 };
+
+export default diff;

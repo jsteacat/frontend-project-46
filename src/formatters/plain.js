@@ -13,7 +13,7 @@ const defineValue = (value) => {
 const plain = (tree) => {
   const innerFunc = (node) => {
     const {
-      key, state, value, oldValue, newValue,
+      key, state, value, children, oldValue, newValue,
     } = node;
     switch (node.state) {
       case 'added':
@@ -25,7 +25,7 @@ const plain = (tree) => {
       case 'removed':
         return `Property '${key}' was ${state}`;
       case 'nested':
-        return value.flatMap((el) => {
+        return children.flatMap((el) => {
           const newKey = `${key}.${el.key}`;
           const newEl = { ...el, key: newKey };
           return innerFunc(newEl);

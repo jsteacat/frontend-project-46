@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { getFormat, getFullPath } from './utils/path.js';
-import parser from './utils/parsers.js';
+import parser from './parsers/index.js';
 import getDataChanges from './dataChanges.js';
 import getFormattedData from './formatters/index.js';
 

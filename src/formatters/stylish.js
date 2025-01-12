@@ -38,7 +38,7 @@ const stylish = (tree) => {
       return `${blank.repeat(indentSize)}${states[state][0]}${key}: ${defineValue(oldValue, depth)}\n${blank.repeat(indentSize)}${states[state][1]}${key}: ${defineValue(newValue, depth)}`;
     }
     if (node.state === 'nested') {
-      return `${blank.repeat(indentSize)}${states[state]}${key}: {\n${node.value.map((el) => innerFunc(el, depth + 1)).join('\n')}\n${blank.repeat(bracketIndent)}}`;
+      return `${blank.repeat(indentSize)}${states[state]}${key}: {\n${node.children.map((el) => innerFunc(el, depth + 1)).join('\n')}\n${blank.repeat(bracketIndent)}}`;
     }
     throw new Error(`Invalid node state - ${state}`);
   };

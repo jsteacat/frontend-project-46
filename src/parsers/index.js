@@ -1,5 +1,5 @@
+import fs from 'fs';
 import { getFormat } from '../utils/path.js';
-import readFile from '../utils/readFile.js';
 import jsonParser from './json.js';
 import yamlParser from './yaml.js';
 
@@ -11,7 +11,7 @@ const parser = {
 
 export default (filePath) => {
   const format = getFormat(filePath);
-  const data = readFile(filePath);
+  const data = fs.readFileSync(filePath);
   if (!parser[format]) {
     throw new Error(`Invalid format - ${format}`);
   }

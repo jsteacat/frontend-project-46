@@ -1,40 +1,41 @@
-import isObject from '../utils/isObject.js';
-
-const defineValue = (value) => {
-  if (isObject(value)) {
-    return '[complex value]';
-  }
-  if (typeof value === 'string') {
+const getNormalizeValue = (value) => {
+  if (typeof (value) === 'string') {
     return `'${value}'`;
   }
+
+  if (Array.isArray(value)) {
+    return '[complex value]';
+  }
+
   return value;
 };
 
-const plain = (tree) => {
-  const innerFunc = (node) => {
-    const {
-      key, state, value, children, oldValue, newValue,
-    } = node;
-    switch (node.state) {
-      case 'added':
-        return `Property '${key}' was ${state} with value: ${defineValue(value)}`;
-      case 'updated':
-        return `Property '${key}' was ${state}. From ${defineValue(oldValue)} to ${defineValue(newValue)}`;
-      case 'unchanged':
-        return [];
-      case 'removed':
-        return `Property '${key}' was ${state}`;
-      case 'nested':
-        return children.flatMap((el) => {
-          const newKey = `${key}.${el.key}`;
-          const newEl = { ...el, key: newKey };
-          return innerFunc(newEl);
-        });
-      default:
-        throw new Error(`Invalid node state - ${state}`);
-    }
-  };
-  return tree.flatMap(innerFunc).join('\n');
-};
+export default (tree) => {
+  const diff = tree.flatMap((node) => {
+    const iter = (el, path) => {
+      const { status, value } = el;
+      if (status === 'removed') {
+        return `Property '${path}' was removed`;
+      }
 
-export default plain;
+      if (status === 'added') {
+        return `Property '${path}' was added with value: ${getNormalizeValue(value)}`;
+      }
+
+      if (status === 'modified') {
+        const [rmValue, addValue] = value;
+        return `Property '${path}' was updated. From ${getNormalizeValue(rmValue)} to ${getNormalizeValue(addValue)}`;
+      }
+
+      if (status === 'nested') {
+        return value.flatMap((curValue) => iter(curValue, `${path}.${curValue.key}`));
+      }
+
+      return [];
+    };
+
+    return iter(node, node.key);
+  });
+
+  return diff.join('\n', '');
+};

@@ -1,16 +1,16 @@
-import jsonFormatter from './json.js';
-import plainFormatter from './plain.js';
-import stylishFormatter from './stylish.js';
+import genStylishFormat from './stylish.js';
+import genPlainFormat from './plain.js';
+import genJsonFormat from './json.js';
 
-const formatter = {
-  json: jsonFormatter,
-  plain: plainFormatter,
-  stylish: stylishFormatter,
-};
-
-export default (tree, format = 'stylish') => {
-  if (!formatter[format]) {
-    throw new Error(`Unknown format: ${format}`);
+export default (tree, format) => {
+  switch (format) {
+    case 'stylish':
+      return genStylishFormat(tree);
+    case 'plain':
+      return genPlainFormat(tree);
+    case 'json':
+      return genJsonFormat(tree);
+    default:
+      throw new Error(`${format} format is not support`);
   }
-  return formatter[format](tree);
 };

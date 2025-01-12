@@ -1,48 +1,36 @@
-import isObject from '../utils/isObject.js';
-
-const states = {
-  added: '+ ',
-  removed: '- ',
-  unchanged: '  ',
-  nested: '  ',
-  updated: ['- ', '+ '],
+const operators = {
+  added: '+',
+  removed: '-',
+  nested: ' ',
+  unchanged: ' ',
+  modified: '-+',
 };
 
-const defineValue = (value, depth) => {
-  const spacesCount = 4;
-  const indentSize = depth * spacesCount + spacesCount;
-  const bracketIndent = indentSize - spacesCount;
-  const blank = ' ';
-  if (!isObject(value)) {
-    return value;
-  }
-  const entries = Object.entries(value);
-  const result = entries.map(([key, val]) => `${blank.repeat(indentSize)}${key}: ${defineValue(val, depth + 1)}`);
-  return ['{', ...result, `${blank.repeat(bracketIndent)}}`].join('\n');
-};
+const indent = '    ';
+const genIndent = (count) => indent.repeat(count);
 
-const stylish = (tree) => {
-  const innerFunc = (node, depth) => {
-    const spacesCount = 4;
-    const leftIndent = 2;
-    const indentSize = depth * spacesCount - leftIndent;
-    const blank = ' ';
-    const bracketIndent = indentSize + leftIndent;
-    const {
-      key, state, value, oldValue, newValue,
-    } = node;
-    if (node.state !== 'nested' && node.state !== 'updated') {
-      return `${blank.repeat(indentSize)}${states[state]}${key}: ${defineValue(value, depth)}`;
-    }
-    if (node.state === 'updated') {
-      return `${blank.repeat(indentSize)}${states[state][0]}${key}: ${defineValue(oldValue, depth)}\n${blank.repeat(indentSize)}${states[state][1]}${key}: ${defineValue(newValue, depth)}`;
-    }
-    if (node.state === 'nested') {
-      return `${blank.repeat(indentSize)}${states[state]}${key}: {\n${node.children.map((el) => innerFunc(el, depth + 1)).join('\n')}\n${blank.repeat(bracketIndent)}}`;
-    }
-    throw new Error(`Invalid node state - ${state}`);
+const genStylishFormat = (tree) => {
+  const iter = (node, count) => {
+    const curIndent = genIndent(count);
+    const newTree = node.map((el) => {
+      const { status, key, value } = el;
+      if (status === 'modified') {
+        const [rmValue, addValue] = value;
+        const normalizeValue1 = Array.isArray(rmValue) ? iter(rmValue, count + 1) : rmValue;
+        const normalizeValue2 = Array.isArray(addValue) ? iter(addValue, count + 1) : addValue;
+        const diff1 = `${curIndent}  ${operators[status][0]} ${key}: ${normalizeValue1}`;
+        const diff2 = `${curIndent}  ${operators[status][1]} ${key}: ${normalizeValue2}`;
+        return `${diff1}\n${diff2}`;
+      }
+
+      const newValue = Array.isArray(value) ? iter(value, count + 1) : value;
+      return `${curIndent}  ${operators[status]} ${key}: ${newValue}`;
+    });
+
+    return `{\n${newTree.join('\n')}\n${curIndent}}`;
   };
-  return `{\n${tree.map((el) => innerFunc(el, 1)).join('\n')}\n}`;
+
+  return iter(tree, 0);
 };
 
-export default stylish;
+export default genStylishFormat;

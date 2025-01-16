@@ -30,8 +30,8 @@ const genDiffTree = (obj1, obj2) => {
     if (obj1[key] === obj2[key]) {
       return { status: 'unchanged', key, value: value1 };
     }
-
-    return { status: 'modified', key, value1, value2 };
+    
+    return { status: 'modified', key, value: [value1, value2] };
   });
 };
 

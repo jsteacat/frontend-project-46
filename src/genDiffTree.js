@@ -33,8 +33,6 @@ const genDiffTree = (obj1, obj2) => {
 
     return { status: 'modified', key, value: [value1, value2] };
   });
-
-  return diff;
 };
 
 export default genDiffTree;

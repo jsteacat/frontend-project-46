@@ -2,7 +2,7 @@ import _ from 'lodash';
 import isObject from './utilits.js';
 
 const genDiffTree = (obj1, obj2) => {
-  const keys = _.sortBy(Array.from(new Set(Object.keys({ ...obj1, ...obj2 }))));
+  const keys = _.sortBy(_.union(Object.keys({ ...obj1, ...obj2 })));
 
   const genNormalizeValue = (value) => {
     if (isObject(value)) {

@@ -1,36 +1,37 @@
-const operators = {
-  added: '+',
-  removed: '-',
-  nested: ' ',
-  unchanged: ' ',
-  modified: '-+',
+import _ from 'lodash';
+
+const fourSpaces = '    ';
+const getCurrentIndent = (depth) => `${fourSpaces.repeat(depth - 1)}${fourSpaces.slice(0, 2)}`;
+const getBracketIndent = (depth) => fourSpaces.repeat(depth - 1);
+
+const stringify = (value, depth = 1) => {
+  if (!(_.isObject(value))) {
+    return `${value}`;
+  }
+  const keys = Object.keys(value);
+  const result = keys.flatMap((key) => `${getCurrentIndent(depth + 1)}  ${key}: ${stringify(value[key], depth + 1)}`);
+  return `{\n${result.join('\n')}\n${getBracketIndent(depth + 1)}}`;
 };
 
-const indent = '    ';
-const genIndent = (count) => indent.repeat(count);
-
-const genStylishFormat = (tree) => {
-  const iter = (node, count) => {
-    const curIndent = genIndent(count);
-    const newTree = node.map((el) => {
-      const { status, key, value } = el;
-      if (status === 'modified') {
-        const [rmValue, addValue] = value;
-        const normalizeValue1 = Array.isArray(rmValue) ? iter(rmValue, count + 1) : rmValue;
-        const normalizeValue2 = Array.isArray(addValue) ? iter(addValue, count + 1) : addValue;
-        const diff1 = `${curIndent}  ${operators[status][0]} ${key}: ${normalizeValue1}`;
-        const diff2 = `${curIndent}  ${operators[status][1]} ${key}: ${normalizeValue2}`;
-        return `${diff1}\n${diff2}`;
-      }
-
-      const newValue = Array.isArray(value) ? iter(value, count + 1) : value;
-      return `${curIndent}  ${operators[status]} ${key}: ${newValue}`;
-    });
-
-    return `{\n${newTree.join('\n')}\n${curIndent}}`;
-  };
-
-  return iter(tree, 0);
+const genStylishFormat = (tree, depth = 1) => {
+  const result = tree.flatMap((node) => {
+    switch (node.status) {
+      case 'added':
+        return `${getCurrentIndent(depth)}+ ${node.key}: ${stringify(node.value, depth)}`;
+      case 'removed':
+        return `${getCurrentIndent(depth)}- ${node.key}: ${stringify(node.value, depth)}`;
+      case 'modified':
+        return `${getCurrentIndent(depth)}- ${node.key}: ${stringify(node.value1, depth)}\n`
+          + `${getCurrentIndent(depth)}+ ${node.key}: ${stringify(node.value2, depth)}`;
+      case 'unchanged':
+        return `${getCurrentIndent(depth)}  ${node.key}: ${stringify(node.value, depth)}`;
+      case 'nested':
+        return `${getCurrentIndent(depth)}  ${node.key}: ${genStylishFormat(node.value, depth + 1)}`;
+      default:
+        return 'Error';
+    }
+  });
+  return `{\n${result.join('\n')}\n${getBracketIndent(depth)}}`;
 };
 
 export default genStylishFormat;

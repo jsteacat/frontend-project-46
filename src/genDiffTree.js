@@ -1,6 +1,7 @@
 import isObject from './utilits.js';
 
 const genDiffTree = (obj1, obj2) => {
+  // eslint-disable-next-line fp/no-mutating-methods
   const keys = Array.from(new Set([...Object.keys(obj1), ...Object.keys(obj2)])).sort();
 
   const genNormalizeValue = (value) => {
